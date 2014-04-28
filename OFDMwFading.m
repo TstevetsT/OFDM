@@ -101,28 +101,82 @@ SymbolsIn_dk(:,1) = qamdemod(SymbolsInFFT_AWGM(:,1),L,0,'gray');
 SymbolsIn_dk(:,2) = qamdemod(SymbolsInFFT_AWGM(:,2),L,0,'gray');
 SymbolsIn_dk(:,3) = qamdemod(SymbolsInFFT_AWGM(:,3),L,0,'gray');
 
-%Graphs
+%% (h) Convert From Integer Symbols to Binary
+%Rayleigh-Single Carrier
+DecimalVector_To_Binary_ck_Single(:,1:m) = de2bi(SymbolsIn_dk_Single(:,1),m);
+DecimalVector_To_Binary_ck_Single(:,m+1:2*m) = de2bi(SymbolsIn_dk_Single(:,2),m);
+DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Single(:,3),m);
+
+bitsIn_ck_Single(:,1)=reshape(DecimalVector_To_Binary_ck_Single(:,1:m),[N*L*m 1]);
+bitsIn_ck_Single(:,2)=reshape(DecimalVector_To_Binary_ck_Single(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Single(:,3)=reshape(DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m),[N*L*m 1]);
+
+%Rayleigh-MultiCarrier
+DecimalVector_To_Binary_ck_Rayleigh(:,1:m) = de2bi(SymbolsIn_dk_Rayleigh(:,1),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m) = de2bi(SymbolsIn_dk_Rayleigh(:,2),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Rayleigh(:,3),m);
+
+bitsIn_ck_Rayleigh(:,1)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,1:m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,2)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,3)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m),[N*L*m 1]);
+
+%AWGM-MultiCarrier
+DecimalVector_To_Binary_ck(:,1:m) = de2bi(SymbolsIn_dk(:,1),m);
+DecimalVector_To_Binary_ck(:,m+1:2*m) = de2bi(SymbolsIn_dk(:,2),m);
+DecimalVector_To_Binary_ck(:,2*m+1:3*m) = de2bi(SymbolsIn_dk(:,3),m);
+
+bitsIn_ck(:,1)=reshape(DecimalVector_To_Binary_ck(:,1:m),[N*L*m 1]);
+bitsIn_ck(:,2)=reshape(DecimalVector_To_Binary_ck(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck(:,3)=reshape(DecimalVector_To_Binary_ck(:,2*m+1:3*m),[N*L*m 1]);
+
+%% (i) Calculate Bit Error Rates and display
+fprintf('\nL = %d     N = %d\n',L,N)
+fprintf('\n Sigma = 0.0\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+fprintf('\n Sigma = 0.02\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+fprintf('\n Sigma = 0.08\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+%% (j) Graphs
 splotfig1=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
 hold on
-scatterplot(Symbols_Xk,1,0,'k*',splotfig1);
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig1);
 title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.0'))
 axis([-m m -m m])
 
 splotfig2=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
 hold on
-scatterplot(Symbols_Xk,1,0,'k*',splotfig2);
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig2);
 title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.02'))
 axis([-m m -m m])
 
 splotfig3=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
 hold on
-scatterplot(Symbols_Xk,1,0,'k*',splotfig3);
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig3);
 title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.08'))
 axis([-m m -m m])
 
 splotfig4=scatterplot(SymbolsInFFT_Rayleigh(:,1),1,0,'g.');
 hold on
-scatterplot(Symbols_Xk,1,0,'k*',splotfig4);
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig4);
 title(strcat('Multiple Carrier: L = ', {' '},num2str(L),' sigma = 0.0'))
 axis([-m m -m m])
 
@@ -140,7 +194,7 @@ axis([-m m -m m])
 
 splotfig7=scatterplot(SymbolsInFFT_AWGM(:,1),1,0,'g.');
 hold on
-scatterplot(Symbols_Xk,1,0,'k*',splotfig7);
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig7);
 title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L),' sigma = 0.0'))
 axis([-m m -m m])
 
@@ -156,83 +210,6 @@ scatterplot(Symbols_Xk,1,0,'k*',splotfig9);
 title(strcat('Multiple Carrier AWGN: L =  ', {' '},num2str(L),', sigma = 0.08'))
 axis([-m m -m m])
 
-%Convert to binary
-
-%Rayleigh-Single Carrier
-DecimalVector_To_Binary_ck_Single(:,1:m) = de2bi(SymbolsIn_dk_Single(:,1),m);
-DecimalVector_To_Binary_ck_Single(:,m+1:2*m) = de2bi(SymbolsIn_dk_Single(:,2),m);
-DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Single(:,3),m);
-
-%Rayleigh-MultiCarrier
-DecimalVector_To_Binary_ck_Rayleigh(:,1:m) = de2bi(SymbolsIn_dk_Rayleigh(:,1),m);
-DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m) = de2bi(SymbolsIn_dk_Rayleigh(:,2),m);
-DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Rayleigh(:,3),m);
-
-%AWGM-MultiCarrier
-DecimalVector_To_Binary_ck(:,1:m) = de2bi(SymbolsIn_dk(:,1),m);
-DecimalVector_To_Binary_ck(:,m+1:2*m) = de2bi(SymbolsIn_dk(:,2),m);
-DecimalVector_To_Binary_ck(:,2*m+1:3*m) = de2bi(SymbolsIn_dk(:,3),m);
-
-%bits received
-
-bitsIn_ck_Single(:,1)=reshape(DecimalVector_To_Binary_ck_Single(:,1:m),[N*L*m 1]);
-bitsIn_ck_Single(:,2)=reshape(DecimalVector_To_Binary_ck_Single(:,m+1:2*m),[N*L*m 1]);
-bitsIn_ck_Single(:,3)=reshape(DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m),[N*L*m 1]);
-
-bitsIn_ck_Rayleigh(:,1)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,1:m),[N*L*m 1]);
-bitsIn_ck_Rayleigh(:,2)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m),[N*L*m 1]);
-bitsIn_ck_Rayleigh(:,3)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m),[N*L*m 1]);
-
-bitsIn_ck(:,1)=reshape(DecimalVector_To_Binary_ck(:,1:m),[N*L*m 1]);
-bitsIn_ck(:,2)=reshape(DecimalVector_To_Binary_ck(:,m+1:2*m),[N*L*m 1]);
-bitsIn_ck(:,3)=reshape(DecimalVector_To_Binary_ck(:,2*m+1:3*m),[N*L*m 1]);
-
-
-
-
-fprintf('\nL = %d     N = %d\n',L,N)
-
-fprintf('\n Sigma = 0.0\n')
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,1));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,1));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,1));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
-
-fprintf('\n Sigma = 0.02\n')
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,2));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,2));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,2));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
-
-fprintf('\n Sigma = 0.08\n')
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,3));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,3));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
-
-[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,3));
-
-fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
-
+%% Clean Up for next run
 clear all
 end

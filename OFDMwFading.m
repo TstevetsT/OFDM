@@ -62,7 +62,8 @@ h=sqrt(abs(Noise));
 
 %% (ea) Fading Scenario 1 SingleCarrier Modulation,fading Channel
 SymbolsOut_rk_SingleCarrier(1)=Symbols_Xk(1);
-SymbolsOut_rk_SingleCarrier(2)=Symbols_Xk(2)+0.5*SymbolsOut_rk_SingleCarrier(1);
+SymbolsOut_rk_SingleCarrier(2)=Symbols_Xk(2)+0.5* ...
+    SymbolsOut_rk_SingleCarrier(1);
 for i=3:N*L
     SymbolsOut_rk_SingleCarrier(i)=Symbols_Xk(i)+0.5*Symbols_Xk(i-1)+ ...
         0.25*Symbols_Xk(i-2);
@@ -124,17 +125,22 @@ bitsIn_ck(:,2)=reshape(DecimalVector_To_Binary_ck(:,m+1:2*m),[N*L*m 1]);
 bitsIn_ck(:,3)=reshape(DecimalVector_To_Binary_ck(:,2*m+1:3*m),[N*L*m 1]);
 
 %% (i) Calculate Bit Error Rates and display
-fprintf('\n%d Bits Per Symbol over %d samples resulted in the following:\n',L,N)
+fprintf('\n%d Bits Per Symbol over %d samples resulted in:\n',L,N)
 [numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single);
-fprintf('Single Carrier Stanford Model had a bit error rate of %5.2e(%d errors).\n' , ber,numErrors)
+fprintf('Single Carrier Stanford Model had a bit error rate of:\n')
+fprintf('%5.2e(%d errors).\n', ber,numErrors)
 [numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh);
-fprintf('Multiple Carrier Stanford Model had a bit error rate of %5.2e(%d errors).\n', ber,numErrors)
+fprintf('Multiple Carrier Stanford Model had a bit error rate of:\n')
+fprintf('%5.2e(%d errors).\n', ber,numErrors)
 [numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,1));
-fprintf('Multiple Carrier AWGN had a bit error rate of %5.2e(%d errors) with Sigma=0.\n', ber,numErrors)
+fprintf('Multiple Carrier AWGN had a bit error rate of:\n')
+fprintf('%5.2e(%d errors) with Sigma=0.\n', ber,numErrors)
 [numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,2));
-fprintf('Multiple Carrier AWGN had a bit error rate of %5.2e(%d errors) with Sigma=0.02.\n', ber,numErrors)
+fprintf('Multiple Carrier AWGN had a bit error rate of:\n')
+fprintf('%5.2e(%d errors) with Sigma=0.02.\n' , ber,numErrors)
 [numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,3));
-fprintf('Multiple Carrier AWGN had a bit error rate of %5.2e(%d errors) with Sigma=0.08.\n', ber,numErrors)
+fprintf('Multiple Carrier AWGN had a bit error rate of:\n')
+fprintf('%5.2e(%d errors) with Sigma=0.08.\n', ber,numErrors)
 
 %% (j) Graphs
 splotfig1=scatterplot(SymbolsOut_rk_SingleCarrier,1,0,'g.');
@@ -152,19 +158,22 @@ axis([-m m -m m])
 splotfig7=scatterplot(SymbolsInFFT_AWGM(:,1),1,0,'g.');
 hold on
 scatterplot(Symbols_Xk,1,0,'k*',splotfig7);
-title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L),' sigma = 0.0'))
+title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L), ...
+    ' sigma = 0.0'))
 axis([-m m -m m])
 
 splotfig8=scatterplot(SymbolsInFFT_AWGM(:,2),1,0,'g.');
 hold on
 scatterplot(Symbols_Xk,1,0,'k*',splotfig8);
-title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L),' sigma = 0.02'))
+title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L), ...
+    ' sigma = 0.02'))
 axis([-m-1 m+1 -m-1 m+1])
 
 splotfig9=scatterplot(SymbolsInFFT_AWGM(:,3),1,0,'g.');
 hold on
 scatterplot(Symbols_Xk,1,0,'k*',splotfig9);
-title(strcat('Multiple Carrier AWGN: L =  ', {' '},num2str(L),', sigma = 0.08'))
+title(strcat('Multiple Carrier AWGN: L =  ', {' '},num2str(L), ...
+    ', sigma = 0.08'))
 axis([-m m -m m])
 
 %% Clean Up for next run

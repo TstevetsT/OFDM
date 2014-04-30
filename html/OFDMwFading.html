@@ -1,0 +1,540 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>OFDM with a Fading Channel</title><meta name="generator" content="MATLAB 8.3"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2014-04-28"><meta name="DC.source" content="OFDMwFading.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>OFDM with a Fading Channel</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Housekeeping and Constant Assignment</a></li><li><a href="#3">(a) Generate Input Bit Sequence</a></li><li><a href="#4">(b) Convert Bit Sequence to Bit Group Sequence</a></li><li><a href="#5">(c) Convert Bit Group Sequence into Constellation Symbol Group</a></li><li><a href="#6">(d) Apply Constellation Symbol Groups to IFFT</a></li><li><a href="#7">(e) Calculate Gaussian Noise and Rayleigh Fading for Signal</a></li><li><a href="#8">(ea) Fading Scenario 1 SingleCarrier Modulation,fading Channel</a></li><li><a href="#9">(eb) Fading Scenario 2 Multicarrier Modulation, fading channel</a></li><li><a href="#10">(ec) Noise Scenario 3 MultiCarrier Modulation, AWGN channel</a></li><li><a href="#11">(f) Use FFT to Recover Constellation Symbol</a></li><li><a href="#12">(g) Implement Demapping to Return Received Symbols to Bit Stream</a></li><li><a href="#13">(h) Convert From Integer Symbols to Binary</a></li><li><a href="#14">(i) Calculate Bit Error Rates and display</a></li><li><a href="#15">(j) Graphs</a></li><li><a href="#16">Clean Up for next run</a></li></ul></div><h2>Housekeeping and Constant Assignment<a name="1"></a></h2><pre class="codeinput">close <span class="string">all</span>
+clc
+
+<span class="keyword">for</span> L=[16 64 256]  <span class="comment">%size of IFFT/FFT</span>
+</pre><pre class="codeinput">    <span class="keyword">if</span> L==16
+        m=4;  <span class="comment">%m = log2(M) is the number bits per symbol or M = 2^m</span>
+        M=2^m;    <span class="comment">%number of symbols in M-ary modulation</span>
+    <span class="keyword">elseif</span> L==64
+        m=6;    <span class="comment">%m = log2(M) is the number bits per symbol or M = 2^m</span>
+        M=2^m;    <span class="comment">%number of symbols in M-ary modulation</span>
+    <span class="keyword">else</span>
+        m=8;    <span class="comment">%m = log2(M) is the number bits per symbol or M = 2^m</span>
+        M=2^m;    <span class="comment">%number of symbols in M-ary modulation</span>
+    <span class="keyword">end</span>
+
+N=200;  <span class="comment">%number of OFDM symbols</span>
+</pre><h2>(a) Generate Input Bit Sequence<a name="3"></a></h2><p>Generate a random sequence bk of 1s and 0s with equal probability of length m&times;L&times;N. Suggested values are: m = 2; L = 16 (64 and 256 are optional); and N = 200 or more.</p><pre class="codeinput">bits_bk =randi([0 1],[N*L*m 1]);    <span class="comment">%Input Bit Sequence</span>
+</pre><h2>(b) Convert Bit Sequence to Bit Group Sequence<a name="4"></a></h2><pre>Let us consider QPSK, i.e., m = 2 or M = 4. A higher order modulation is
+an option. Convert groups of m bits mk into a sequence of unsigned
+decimal values.</pre><pre class="codeinput">bitsTo_M_Vectors_mk = reshape(bits_bk,length(bits_bk)/m,m);     <span class="comment">%Bit Group</span>
+DecimalVector = bi2de(bitsTo_M_Vectors_mk);
+</pre><h2>(c) Convert Bit Group Sequence into Constellation Symbol Group<a name="5"></a></h2><pre>Use the constellation diagram below to map mk into constellation symbol
+sequence Xk. These are complex values (I-Q data).</pre><pre class="codeinput">Symbols_Xk = qammod(DecimalVector,L,0,<span class="string">'gray'</span>);  <span class="comment">%Constellation Symbol Group</span>
+</pre><h2>(d) Apply Constellation Symbol Groups to IFFT<a name="6"></a></h2><pre>Take a block of size L constellation symbols and apply the IFFT
+algorithm. Repeat this N times. These are complex valued too.</pre><pre class="codeinput">SymbolsIFFT = ifft(Symbols_Xk);
+</pre><h2>(e) Calculate Gaussian Noise and Rayleigh Fading for Signal<a name="7"></a></h2><pre>Simulate the channel as appropriate for each scenario. For AWGN, add
+(I-Q) white Gaussian noise with zero mean; suggested standard deviation
+values are ? = 0, 0.02, 0.08. The fading cannel can be realized in a
+number of ways with Rayleigh being the simplest. Here are two models
+to consider (the second is optional).</pre><pre class="codeinput">sigmaValues = [0.0, 0.02, 0.08];    <span class="comment">%Standard Deviation</span>
+randQ=randn(length(Symbols_Xk),1)*i;    <span class="comment">%Creates random variations of Q</span>
+randI=randn(length(Symbols_Xk),1);      <span class="comment">%Creates random variations of I</span>
+Noise=(randQ+randI)*sigmaValues;        <span class="comment">%Imposes Noise to the signal vector</span>
+
+<span class="comment">% Add Rayleigh Fading to the Signal</span>
+<span class="comment">%  Rayleigh (statistical model). The effect of fading is realized as a</span>
+<span class="comment">% scalar h, given by h= sqrt(abs(wI+jwQ)) where wI and wQ are independent</span>
+<span class="comment">% white Gaussian random variables with unit variance. Hint: compute a</span>
+<span class="comment">% new h value for each message symbol period.</span>
+h=sqrt(abs(Noise));
+</pre><h2>(ea) Fading Scenario 1 SingleCarrier Modulation,fading Channel<a name="8"></a></h2><pre class="codeinput">SymbolsOut_rk_SingleCarrier(:,1)=Symbols_Xk+h(:,1)+h(:,1)*i;
+SymbolsOut_rk_SingleCarrier(:,2)=Symbols_Xk+h(:,2)+h(:,2)*i;
+SymbolsOut_rk_SingleCarrier(:,3)=Symbols_Xk+h(:,3)+h(:,3)*i;
+</pre><h2>(eb) Fading Scenario 2 Multicarrier Modulation, fading channel<a name="9"></a></h2><pre class="codeinput">SymbolsOut_rk_woNoise(:,1)=SymbolsIFFT+h(:,1)+h(:,1)*i;
+SymbolsOut_rk_woNoise(:,2)=SymbolsIFFT+h(:,2)+h(:,2)*i;
+SymbolsOut_rk_woNoise(:,3)=SymbolsIFFT+h(:,3)+h(:,3)*i;
+</pre><h2>(ec) Noise Scenario 3 MultiCarrier Modulation, AWGN channel<a name="10"></a></h2><pre class="codeinput">SymbolsOut_rk(:,1)=SymbolsIFFT+Noise(:,1);
+SymbolsOut_rk(:,2)=SymbolsIFFT+Noise(:,2);
+SymbolsOut_rk(:,3)=SymbolsIFFT+Noise(:,3);
+</pre><h2>(f) Use FFT to Recover Constellation Symbol<a name="11"></a></h2><p>(fa) N/A (fb) FFT Scenario 2 Multicarrier Modulation, fading channel</p><pre class="codeinput">SymbolsInFFT_Rayleigh(:,1) = fft(SymbolsOut_rk_woNoise(:,1));
+SymbolsInFFT_Rayleigh(:,2) = fft(SymbolsOut_rk_woNoise(:,2));
+SymbolsInFFT_Rayleigh(:,3) = fft(SymbolsOut_rk_woNoise(:,3));
+
+<span class="comment">% (fc) FFT Scenario 3 MultiCarrier Modulation, AWGN channel</span>
+SymbolsInFFT_AWGM(:,1) = fft(SymbolsOut_rk(:,1));
+SymbolsInFFT_AWGM(:,2) = fft(SymbolsOut_rk(:,2));
+SymbolsInFFT_AWGM(:,3) = fft(SymbolsOut_rk(:,3));
+</pre><h2>(g) Implement Demapping to Return Received Symbols to Bit Stream<a name="12"></a></h2><p>(ga) Demap Scenario 1 SingleCarrier Modulation,fading Channel</p><pre class="codeinput">SymbolsIn_dk_Single(:,1) = qamdemod(SymbolsOut_rk_SingleCarrier(:,1),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk_Single(:,2) = qamdemod(SymbolsOut_rk_SingleCarrier(:,2),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk_Single(:,3) = qamdemod(SymbolsOut_rk_SingleCarrier(:,3),L,0,<span class="string">'gray'</span>);
+
+<span class="comment">% (gb) Demap Scenario 2 Multicarrier Modulation,Raleigh fading channel</span>
+SymbolsIn_dk_Rayleigh(:,1) = qamdemod(SymbolsInFFT_Rayleigh(:,1),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk_Rayleigh(:,2) = qamdemod(SymbolsInFFT_Rayleigh(:,2),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk_Rayleigh(:,3) = qamdemod(SymbolsInFFT_Rayleigh(:,3),L,0,<span class="string">'gray'</span>);
+
+<span class="comment">% (gc) Demap Scenario 3 MultiCarrier Modulation, AWGN channel</span>
+SymbolsIn_dk(:,1) = qamdemod(SymbolsInFFT_AWGM(:,1),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk(:,2) = qamdemod(SymbolsInFFT_AWGM(:,2),L,0,<span class="string">'gray'</span>);
+SymbolsIn_dk(:,3) = qamdemod(SymbolsInFFT_AWGM(:,3),L,0,<span class="string">'gray'</span>);
+</pre><h2>(h) Convert From Integer Symbols to Binary<a name="13"></a></h2><pre class="codeinput"><span class="comment">%Rayleigh-Single Carrier</span>
+DecimalVector_To_Binary_ck_Single(:,1:m) = de2bi(SymbolsIn_dk_Single(:,1),m);
+DecimalVector_To_Binary_ck_Single(:,m+1:2*m) = de2bi(SymbolsIn_dk_Single(:,2),m);
+DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Single(:,3),m);
+
+bitsIn_ck_Single(:,1)=reshape(DecimalVector_To_Binary_ck_Single(:,1:m),[N*L*m 1]);
+bitsIn_ck_Single(:,2)=reshape(DecimalVector_To_Binary_ck_Single(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Single(:,3)=reshape(DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m),[N*L*m 1]);
+
+<span class="comment">%Rayleigh-MultiCarrier</span>
+DecimalVector_To_Binary_ck_Rayleigh(:,1:m) = de2bi(SymbolsIn_dk_Rayleigh(:,1),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m) = de2bi(SymbolsIn_dk_Rayleigh(:,2),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Rayleigh(:,3),m);
+
+bitsIn_ck_Rayleigh(:,1)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,1:m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,2)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,3)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m),[N*L*m 1]);
+
+<span class="comment">%AWGM-MultiCarrier</span>
+DecimalVector_To_Binary_ck(:,1:m) = de2bi(SymbolsIn_dk(:,1),m);
+DecimalVector_To_Binary_ck(:,m+1:2*m) = de2bi(SymbolsIn_dk(:,2),m);
+DecimalVector_To_Binary_ck(:,2*m+1:3*m) = de2bi(SymbolsIn_dk(:,3),m);
+
+bitsIn_ck(:,1)=reshape(DecimalVector_To_Binary_ck(:,1:m),[N*L*m 1]);
+bitsIn_ck(:,2)=reshape(DecimalVector_To_Binary_ck(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck(:,3)=reshape(DecimalVector_To_Binary_ck(:,2*m+1:3*m),[N*L*m 1]);
+</pre><h2>(i) Calculate Bit Error Rates and display<a name="14"></a></h2><pre class="codeinput">fprintf(<span class="string">'\nL = %d     N = %d\n'</span>,L,N)
+fprintf(<span class="string">'\n Sigma = 0.0\n'</span>)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,1));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,1));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,1));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n'</span>, ber,numErrors)
+
+fprintf(<span class="string">'\n Sigma = 0.02\n'</span>)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,2));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,2));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,2));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n'</span>, ber,numErrors)
+
+fprintf(<span class="string">'\n Sigma = 0.08\n'</span>)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,3));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,3));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n'</span>, ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,3));
+fprintf(<span class="string">'\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n'</span>, ber,numErrors)
+</pre><pre class="codeoutput">
+L = 16     N = 200
+
+ Sigma = 0.0
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for multiple carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for AWGN.
+
+ Sigma = 0.02
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 3.06e-01, based on 3916 errors for multiple carrier fading.
+
+The bit error rate = 1.40e-01, based on 1797 errors for AWGN.
+
+ Sigma = 0.08
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 4.17e-01, based on 5344 errors for multiple carrier fading.
+
+The bit error rate = 4.02e-01, based on 5140 errors for AWGN.
+</pre><pre class="codeoutput">
+L = 64     N = 200
+
+ Sigma = 0.0
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for multiple carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for AWGN.
+
+ Sigma = 0.02
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 3.68e-01, based on 28240 errors for multiple carrier fading.
+
+The bit error rate = 2.37e-01, based on 18202 errors for AWGN.
+
+ Sigma = 0.08
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 4.40e-01, based on 33827 errors for multiple carrier fading.
+
+The bit error rate = 4.33e-01, based on 33292 errors for AWGN.
+</pre><pre class="codeoutput">
+L = 256     N = 200
+
+ Sigma = 0.0
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for multiple carrier fading.
+
+The bit error rate = 0.00e+00, based on 0 errors for AWGN.
+
+ Sigma = 0.02
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 4.01e-01, based on 164272 errors for multiple carrier fading.
+
+The bit error rate = 3.05e-01, based on 125033 errors for AWGN.
+
+ Sigma = 0.08
+
+The bit error rate = 0.00e+00, based on 0 errors for single carrier fading.
+
+The bit error rate = 4.55e-01, based on 186485 errors for multiple carrier fading.
+
+The bit error rate = 4.51e-01, based on 184866 errors for AWGN.
+</pre><h2>(j) Graphs<a name="15"></a></h2><pre class="codeinput">splotfig1=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+<span class="comment">%scatterplot(Symbols_Xk,1,0,'k*',splotfig1);</span>
+title(strcat(<span class="string">'Single Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.0'</span>))
+axis([-m m -m m])
+
+splotfig2=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+<span class="comment">%scatterplot(Symbols_Xk,1,0,'k*',splotfig2);</span>
+title(strcat(<span class="string">'Single Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.02'</span>))
+axis([-m m -m m])
+
+splotfig3=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+<span class="comment">%scatterplot(Symbols_Xk,1,0,'k*',splotfig3);</span>
+title(strcat(<span class="string">'Single Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.08'</span>))
+axis([-m m -m m])
+
+splotfig4=scatterplot(SymbolsInFFT_Rayleigh(:,1),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+<span class="comment">%scatterplot(Symbols_Xk,1,0,'k*',splotfig4);</span>
+title(strcat(<span class="string">'Multiple Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.0'</span>))
+axis([-m m -m m])
+
+splotfig5=scatterplot(SymbolsInFFT_Rayleigh(:,2),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+scatterplot(Symbols_Xk,1,0,<span class="string">'k*'</span>,splotfig5);
+title(strcat(<span class="string">'Multiple Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.02'</span>))
+axis([-m m -m m])
+
+splotfig6=scatterplot(SymbolsInFFT_Rayleigh(:,3),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+scatterplot(Symbols_Xk,1,0,<span class="string">'k*'</span>,splotfig6);
+title(strcat(<span class="string">'Multiple Carrier: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.08'</span>))
+axis([-m m -m m])
+
+splotfig7=scatterplot(SymbolsInFFT_AWGM(:,1),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+<span class="comment">%scatterplot(Symbols_Xk,1,0,'k*',splotfig7);</span>
+title(strcat(<span class="string">'Multiple Carrier AWGN: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.0'</span>))
+axis([-m m -m m])
+
+splotfig8=scatterplot(SymbolsInFFT_AWGM(:,2),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+scatterplot(Symbols_Xk,1,0,<span class="string">'k*'</span>,splotfig8);
+title(strcat(<span class="string">'Multiple Carrier AWGN: L = '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">' sigma = 0.02'</span>))
+axis([-m m -m m])
+
+splotfig9=scatterplot(SymbolsInFFT_AWGM(:,3),1,0,<span class="string">'g.'</span>);
+hold <span class="string">on</span>
+scatterplot(Symbols_Xk,1,0,<span class="string">'k*'</span>,splotfig9);
+title(strcat(<span class="string">'Multiple Carrier AWGN: L =  '</span>, {<span class="string">' '</span>},num2str(L),<span class="string">', sigma = 0.08'</span>))
+axis([-m m -m m])
+</pre><img vspace="5" hspace="5" src="OFDMwFading_01.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_02.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_03.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_04.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_05.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_06.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_07.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_08.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_09.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_10.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_11.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_12.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_13.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_14.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_15.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_16.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_17.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_18.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_19.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_20.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_21.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_22.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_23.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_24.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_25.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_26.png" alt=""> <img vspace="5" hspace="5" src="OFDMwFading_27.png" alt=""> <h2>Clean Up for next run<a name="16"></a></h2><pre class="codeinput">clear <span class="string">all</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2014a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% OFDM with a Fading Channel
+%% Housekeeping and Constant Assignment
+close all
+clc  
+
+for L=[16 64 256]  %size of IFFT/FFT
+    if L==16
+        m=4;  %m = log2(M) is the number bits per symbol or M = 2^m
+        M=2^m;    %number of symbols in M-ary modulation
+    elseif L==64
+        m=6;    %m = log2(M) is the number bits per symbol or M = 2^m
+        M=2^m;    %number of symbols in M-ary modulation
+    else
+        m=8;    %m = log2(M) is the number bits per symbol or M = 2^m
+        M=2^m;    %number of symbols in M-ary modulation
+    end
+    
+N=200;  %number of OFDM symbols
+
+%% (a) Generate Input Bit Sequence
+% Generate a random sequence bk of 1s and 0s with equal probability of 
+% length m×L×N. Suggested values are: m = 2; L = 16 (64 and 256 are 
+% optional); and N = 200 or more.
+bits_bk =randi([0 1],[N*L*m 1]);    %Input Bit Sequence
+
+%% (b) Convert Bit Sequence to Bit Group Sequence
+%  Let us consider QPSK, i.e., m = 2 or M = 4. A higher order modulation is 
+%  an option. Convert groups of m bits mk into a sequence of unsigned 
+%  decimal values.
+bitsTo_M_Vectors_mk = reshape(bits_bk,length(bits_bk)/m,m);     %Bit Group
+DecimalVector = bi2de(bitsTo_M_Vectors_mk);
+
+%% (c) Convert Bit Group Sequence into Constellation Symbol Group
+%  Use the constellation diagram below to map mk into constellation symbol 
+% sequence Xk. These are complex values (I-Q data).
+Symbols_Xk = qammod(DecimalVector,L,0,'gray');  %Constellation Symbol Group
+
+%% (d) Apply Constellation Symbol Groups to IFFT
+%  Take a block of size L constellation symbols and apply the IFFT 
+% algorithm. Repeat this N times. These are complex valued too. 
+SymbolsIFFT = ifft(Symbols_Xk); 
+
+%% (e) Calculate Gaussian Noise and Rayleigh Fading for Signal
+%  Simulate the channel as appropriate for each scenario. For AWGN, add 
+% (I-Q) white Gaussian noise with zero mean; suggested standard deviation 
+% values are ? = 0, 0.02, 0.08. The fading cannel can be realized in a 
+% number of ways with Rayleigh being the simplest. Here are two models 
+% to consider (the second is optional).  
+sigmaValues = [0.0, 0.02, 0.08];    %Standard Deviation 
+randQ=randn(length(Symbols_Xk),1)*i;    %Creates random variations of Q
+randI=randn(length(Symbols_Xk),1);      %Creates random variations of I
+Noise=(randQ+randI)*sigmaValues;        %Imposes Noise to the signal vector
+
+% Add Rayleigh Fading to the Signal
+%  Rayleigh (statistical model). The effect of fading is realized as a 
+% scalar h, given by h= sqrt(abs(wI+jwQ)) where wI and wQ are independent 
+% white Gaussian random variables with unit variance. Hint: compute a 
+% new h value for each message symbol period.
+h=sqrt(abs(Noise));
+
+%% (ea) Fading Scenario 1 SingleCarrier Modulation,fading Channel
+SymbolsOut_rk_SingleCarrier(:,1)=Symbols_Xk+h(:,1)+h(:,1)*i;
+SymbolsOut_rk_SingleCarrier(:,2)=Symbols_Xk+h(:,2)+h(:,2)*i;
+SymbolsOut_rk_SingleCarrier(:,3)=Symbols_Xk+h(:,3)+h(:,3)*i;
+
+%% (eb) Fading Scenario 2 Multicarrier Modulation, fading channel
+SymbolsOut_rk_woNoise(:,1)=SymbolsIFFT+h(:,1)+h(:,1)*i;
+SymbolsOut_rk_woNoise(:,2)=SymbolsIFFT+h(:,2)+h(:,2)*i;
+SymbolsOut_rk_woNoise(:,3)=SymbolsIFFT+h(:,3)+h(:,3)*i;
+
+%% (ec) Noise Scenario 3 MultiCarrier Modulation, AWGN channel
+SymbolsOut_rk(:,1)=SymbolsIFFT+Noise(:,1);
+SymbolsOut_rk(:,2)=SymbolsIFFT+Noise(:,2);
+SymbolsOut_rk(:,3)=SymbolsIFFT+Noise(:,3);
+
+%% (f) Use FFT to Recover Constellation Symbol
+% (fa) N/A
+% (fb) FFT Scenario 2 Multicarrier Modulation, fading channel
+SymbolsInFFT_Rayleigh(:,1) = fft(SymbolsOut_rk_woNoise(:,1));
+SymbolsInFFT_Rayleigh(:,2) = fft(SymbolsOut_rk_woNoise(:,2));
+SymbolsInFFT_Rayleigh(:,3) = fft(SymbolsOut_rk_woNoise(:,3));
+
+% (fc) FFT Scenario 3 MultiCarrier Modulation, AWGN channel
+SymbolsInFFT_AWGM(:,1) = fft(SymbolsOut_rk(:,1));
+SymbolsInFFT_AWGM(:,2) = fft(SymbolsOut_rk(:,2));
+SymbolsInFFT_AWGM(:,3) = fft(SymbolsOut_rk(:,3));
+
+%% (g) Implement Demapping to Return Received Symbols to Bit Stream 
+% (ga) Demap Scenario 1 SingleCarrier Modulation,fading Channel
+SymbolsIn_dk_Single(:,1) = qamdemod(SymbolsOut_rk_SingleCarrier(:,1),L,0,'gray');
+SymbolsIn_dk_Single(:,2) = qamdemod(SymbolsOut_rk_SingleCarrier(:,2),L,0,'gray');
+SymbolsIn_dk_Single(:,3) = qamdemod(SymbolsOut_rk_SingleCarrier(:,3),L,0,'gray');
+
+% (gb) Demap Scenario 2 Multicarrier Modulation,Raleigh fading channel 
+SymbolsIn_dk_Rayleigh(:,1) = qamdemod(SymbolsInFFT_Rayleigh(:,1),L,0,'gray');
+SymbolsIn_dk_Rayleigh(:,2) = qamdemod(SymbolsInFFT_Rayleigh(:,2),L,0,'gray');
+SymbolsIn_dk_Rayleigh(:,3) = qamdemod(SymbolsInFFT_Rayleigh(:,3),L,0,'gray');
+
+% (gc) Demap Scenario 3 MultiCarrier Modulation, AWGN channel
+SymbolsIn_dk(:,1) = qamdemod(SymbolsInFFT_AWGM(:,1),L,0,'gray');
+SymbolsIn_dk(:,2) = qamdemod(SymbolsInFFT_AWGM(:,2),L,0,'gray');
+SymbolsIn_dk(:,3) = qamdemod(SymbolsInFFT_AWGM(:,3),L,0,'gray');
+
+%% (h) Convert From Integer Symbols to Binary
+%Rayleigh-Single Carrier
+DecimalVector_To_Binary_ck_Single(:,1:m) = de2bi(SymbolsIn_dk_Single(:,1),m);
+DecimalVector_To_Binary_ck_Single(:,m+1:2*m) = de2bi(SymbolsIn_dk_Single(:,2),m);
+DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Single(:,3),m);
+
+bitsIn_ck_Single(:,1)=reshape(DecimalVector_To_Binary_ck_Single(:,1:m),[N*L*m 1]);
+bitsIn_ck_Single(:,2)=reshape(DecimalVector_To_Binary_ck_Single(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Single(:,3)=reshape(DecimalVector_To_Binary_ck_Single(:,2*m+1:3*m),[N*L*m 1]);
+
+%Rayleigh-MultiCarrier
+DecimalVector_To_Binary_ck_Rayleigh(:,1:m) = de2bi(SymbolsIn_dk_Rayleigh(:,1),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m) = de2bi(SymbolsIn_dk_Rayleigh(:,2),m);
+DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m) = de2bi(SymbolsIn_dk_Rayleigh(:,3),m);
+
+bitsIn_ck_Rayleigh(:,1)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,1:m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,2)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck_Rayleigh(:,3)=reshape(DecimalVector_To_Binary_ck_Rayleigh(:,2*m+1:3*m),[N*L*m 1]);
+
+%AWGM-MultiCarrier
+DecimalVector_To_Binary_ck(:,1:m) = de2bi(SymbolsIn_dk(:,1),m);
+DecimalVector_To_Binary_ck(:,m+1:2*m) = de2bi(SymbolsIn_dk(:,2),m);
+DecimalVector_To_Binary_ck(:,2*m+1:3*m) = de2bi(SymbolsIn_dk(:,3),m);
+
+bitsIn_ck(:,1)=reshape(DecimalVector_To_Binary_ck(:,1:m),[N*L*m 1]);
+bitsIn_ck(:,2)=reshape(DecimalVector_To_Binary_ck(:,m+1:2*m),[N*L*m 1]);
+bitsIn_ck(:,3)=reshape(DecimalVector_To_Binary_ck(:,2*m+1:3*m),[N*L*m 1]);
+
+%% (i) Calculate Bit Error Rates and display
+fprintf('\nL = %d     N = %d\n',L,N)
+fprintf('\n Sigma = 0.0\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,1));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+fprintf('\n Sigma = 0.02\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,2));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+fprintf('\n Sigma = 0.08\n')
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Single(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for single carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck_Rayleigh(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for multiple carrier fading.\n', ber,numErrors)
+[numErrors,ber]=biterr(bits_bk,bitsIn_ck(:,3));
+fprintf('\nThe bit error rate = %5.2e, based on %d errors for AWGN.\n', ber,numErrors)
+
+%% (j) Graphs
+splotfig1=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
+hold on
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig1);
+title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.0'))
+axis([-m m -m m])
+
+splotfig2=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
+hold on
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig2);
+title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.02'))
+axis([-m m -m m])
+
+splotfig3=scatterplot(SymbolsOut_rk_SingleCarrier(:,1),1,0,'g.');
+hold on
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig3);
+title(strcat('Single Carrier: L = ', {' '},num2str(L),' sigma = 0.08'))
+axis([-m m -m m])
+
+splotfig4=scatterplot(SymbolsInFFT_Rayleigh(:,1),1,0,'g.');
+hold on
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig4);
+title(strcat('Multiple Carrier: L = ', {' '},num2str(L),' sigma = 0.0'))
+axis([-m m -m m])
+
+splotfig5=scatterplot(SymbolsInFFT_Rayleigh(:,2),1,0,'g.');
+hold on
+scatterplot(Symbols_Xk,1,0,'k*',splotfig5);
+title(strcat('Multiple Carrier: L = ', {' '},num2str(L),' sigma = 0.02'))
+axis([-m m -m m])
+
+splotfig6=scatterplot(SymbolsInFFT_Rayleigh(:,3),1,0,'g.');
+hold on
+scatterplot(Symbols_Xk,1,0,'k*',splotfig6);
+title(strcat('Multiple Carrier: L = ', {' '},num2str(L),' sigma = 0.08'))
+axis([-m m -m m])
+
+splotfig7=scatterplot(SymbolsInFFT_AWGM(:,1),1,0,'g.');
+hold on
+%scatterplot(Symbols_Xk,1,0,'k*',splotfig7);
+title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L),' sigma = 0.0'))
+axis([-m m -m m])
+
+splotfig8=scatterplot(SymbolsInFFT_AWGM(:,2),1,0,'g.');
+hold on
+scatterplot(Symbols_Xk,1,0,'k*',splotfig8);
+title(strcat('Multiple Carrier AWGN: L = ', {' '},num2str(L),' sigma = 0.02'))
+axis([-m m -m m])
+
+splotfig9=scatterplot(SymbolsInFFT_AWGM(:,3),1,0,'g.');
+hold on
+scatterplot(Symbols_Xk,1,0,'k*',splotfig9);
+title(strcat('Multiple Carrier AWGN: L =  ', {' '},num2str(L),', sigma = 0.08'))
+axis([-m m -m m])
+
+%% Clean Up for next run
+clear all
+end
+##### SOURCE END #####
+--></body></html>

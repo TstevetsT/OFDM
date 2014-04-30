@@ -53,12 +53,6 @@ Noise=(randQ+randI)*sigmaValues;        %Imposes Noise to the signal vector
 % Add Stanford University Interium Model Fading to 
 %SUI channel   y(n)=x(n)+0.5x(n-1)+0.25x(n-2)
 
-% Add Rayleigh Fading to the Signal
-%  Rayleigh (statistical model). The effect of fading is realized as a 
-% scalar h, given by h= sqrt(abs(wI+jwQ)) where wI and wQ are independent 
-% white Gaussian random variables with unit variance. Hint: compute a 
-% new h value for each message symbol period.
-h=sqrt(abs(Noise));
 
 %% (ea) Fading Scenario 1 SingleCarrier Modulation,fading Channel
 SymbolsOut_rk_SingleCarrier(1)=Symbols_Xk(1);
